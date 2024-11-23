@@ -10,5 +10,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Run Tests
-        run: npm run test
+        run: npm i && npm run test
+
   
