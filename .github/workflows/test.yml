@@ -9,8 +9,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Setup Capacitor Web
-        uses: ./.github/actions/capacitor-setup-web
       - name: Run Tests
         run: npm run test
   
