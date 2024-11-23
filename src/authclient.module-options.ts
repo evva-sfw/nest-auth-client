@@ -10,7 +10,7 @@ export interface AuthClientModuleOptions {
      */
     authTenant: string;
     /**
-     *Auth Service client identifier
+     * Auth Service client identifier
      */
     authClientId: string;
     /**
