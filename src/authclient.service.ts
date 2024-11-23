@@ -24,7 +24,7 @@ export class AuthClientService {
   async getVaultToken() {
     this.logger.log('getVaultToken');
     if (!this.authToken) {
-      this.logger.error('Proceeed to SFW Authentication first.');
+      this.logger.error('Proceeed to Authentication first.');
     }
     const vaultRoleId = this.authClientModuleOptions.vaultRoleId;
     const vaultEndpoint = this.authClientModuleOptions.vaultEndpoint;
@@ -52,17 +52,17 @@ export class AuthClientService {
   /**
    * Fetches the JWT token for M2M authentication.
    */
-  async fetchSfwAuthToken(): Promise<string> {
-    const sfwAuthValidity = this.authClientModuleOptions.sfwAuthValidity;
-    const sfwAuthEndpoint = this.authClientModuleOptions.sfwAuthEndpoint;
-    const sfwAuthTenant = this.authClientModuleOptions.sfwAuthTenant;
-    const sfwAuthClientIdentifier = this.authClientModuleOptions.sfwAuthClientId;
-    const secret = this.authClientModuleOptions.sfwAuthClientSecret;
+  async fetchAuthToken(): Promise<string> {
+    const authValidity = this.authClientModuleOptions.authValidity;
+    const authEndpoint = this.authClientModuleOptions.authEndpoint;
+    const authTenant = this.authClientModuleOptions.authTenant;
+    const authClientIdentifier = this.authClientModuleOptions.authClientId;
+    const secret = this.authClientModuleOptions.authClientSecret;
 
-    this.logger.debug(`fetchSfwAuthToken ${sfwAuthEndpoint}, ${sfwAuthTenant}, ${sfwAuthClientIdentifier}`);
+    this.logger.debug(`fetchAuthToken ${authEndpoint}, ${authTenant}, ${authClientIdentifier}`);
     try {
-      const authToken = this._generateAuthToken(sfwAuthTenant, sfwAuthClientIdentifier, Buffer.from(secret, 'base64'));
-      const authUrl = `${sfwAuthEndpoint}/auth/2/${sfwAuthTenant}/${sfwAuthClientIdentifier}/${authToken}?validity=${sfwAuthValidity}`;
+      const authToken = this._generateAuthToken(authTenant, authClientIdentifier, Buffer.from(secret, 'base64'));
+      const authUrl = `${authEndpoint}/auth/2/${authTenant}/${authClientIdentifier}/${authToken}?validity=${authValidity}`;
       const response = await fetch(authUrl);
       this.authToken = await response.text();
     } catch (e) {
@@ -76,16 +76,16 @@ export class AuthClientService {
    * Getter for MQTT username.
    * @returns the username as required for the MQTT endpoint.
    */
-  getSfwAuthUsername(): string {
-    const sfwAuthTenant = this.authClientModuleOptions.sfwAuthTenant;
-    const sfwAuthClientIdentifier = this.authClientModuleOptions.sfwAuthClientId;
+  getAuthUsername(): string {
+    const authTenant = this.authClientModuleOptions.authTenant;
+    const authClientIdentifier = this.authClientModuleOptions.authClientId;
 
-    return `sfw-auth/clients/${sfwAuthTenant}/${sfwAuthClientIdentifier}`;
+    return `sfw-auth/clients/${authTenant}/${authClientIdentifier}`;
   }
 
   /**
    * The vault token must be fetched first with getToken()
-   * @param {String} path Vault path to secret. For example: secret/infrastructure/services/internal/bamboo/approles/sfw-approle-test
+   * @param {String} path Vault path to secret. For example: secret/infrastructure/services/internal/bamboo/approles/approle-test
    * @async
    */
   async getSecret(path) : Promise<string>{

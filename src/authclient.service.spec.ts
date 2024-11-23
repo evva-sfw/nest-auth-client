@@ -51,10 +51,10 @@ describe('AuthClientService', () => {
   beforeEach(async () => {
     const app: TestingModule = await Test.createTestingModule({
       imports: [AuthClientModule.forRoot({
-        sfwAuthEndpoint: 'https://test.service/auth',
-        sfwAuthTenant: 'test',
-        sfwAuthClientId: 'test',
-        sfwAuthClientSecret: 'testsecret'
+        authEndpoint: 'https://test.service/auth',
+        authTenant: 'test',
+        authClientId: 'test',
+        authClientSecret: 'testsecret'
       })],
       providers: [AuthClientService],
     }).compile();

@@ -2,25 +2,25 @@
 export interface AuthClientModuleOptions {
 
     /**
-     * SFW Auth service Endpoint
+     * Auth service Endpoint
      */
-    sfwAuthEndpoint: string;
+    authEndpoint: string;
     /**
-     * SFW Auth Service tenant
+     * Auth Service tenant
      */
-    sfwAuthTenant: string;
+    authTenant: string;
     /**
-     * SFW Auth Service client identifier
+     *Auth Service client identifier
      */
-    sfwAuthClientId: string;
+    authClientId: string;
     /**
-     * SFW Auth Service client secret
+     * Auth Service client secret
      */
-    sfwAuthClientSecret: string;
+    authClientSecret: string;
     /**
-     * SFW Auth Service requested token validity.
+     * Auth Service requested token validity.
      */
-    sfwAuthValidity?: number;
+    authValidity?: number;
 
     /**
      * Vault Service endpoint.
