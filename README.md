@@ -1,6 +1,6 @@
 ## Description
 
-Client implementation for the EVVA [Auth Service].
+Client implementation for the EVVA Auth Service.
 
 ## Build & Package
 ```bash
@@ -61,4 +61,4 @@ export class MyModule implements OnModuleInit {
 
 ## License
 
-Proprietary
+[Proprietary](LICENSE)
