@@ -14,8 +14,6 @@ Client implementation for the EVVA Auth Service.
 
 ## Usage
 
-*In app.module.ts as imports*
-
 ```ts
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import {
