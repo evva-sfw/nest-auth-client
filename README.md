@@ -9,50 +9,55 @@
 
 Client implementation for the EVVA Auth Service.
 
-## Build & Package
-```bash
-# Nest Build
-$ nest build
-```
+## Install
+
 
 ## Usage
 
-```
-  import {ConfigService } from '@nestjs/config';
-  import { 
-  AuthClientModule, 
-  AuthClientService, 
-  AuthClientOptions, 
-  AUTH_ENDPOINT,
-  AUTH_TENANT,
+*In app.module.ts as imports*
+
+```ts
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import {
   AUTH_CLIENT,
+  AUTH_ENDPOINT,
   AUTH_SECRET,
+  AUTH_TENANT,
   AUTH_VALIDITY,
-  VAULT_JWTROLE_IDENTIFIER,
-  VAULT_ENDPOINT,
+  AuthClientModule,
+  AuthClientModuleOptions,
   VAULT_CA,
+  VAULT_ENDPOINT,
+  VAULT_JWTROLE_IDENTIFIER,
 } from '@evva/nest-auth-client';
 
- AuthClientModule.forRootAsync({
+@Module({
+  imports: [
+    AuthClientModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
-      useFactory: async (configService: ConfigService) => 
+      useFactory: async (configService: ConfigService) =>
         ({
           authEndpoint: configService.get<string>(AUTH_ENDPOINT), //use optional
           authTenant: configService.get<string>(AUTH_TENANT),
           authClientId: configService.get<string>(AUTH_CLIENT),
           authClientSecret: configService.get<string>(AUTH_SECRET),
           authValidity: parseInt(configService.get(AUTH_VALIDITY)), // in seconds, see spec
-          vaultRoleId: configService.get<string>(AULT_JWTROLE_IDENTIFIER),
+          vaultRoleId: configService.get<string>(VAULT_JWTROLE_IDENTIFIER),
           vaultEndpoint: configService.get<string>(VAULT_ENDPOINT),
-          vaultCA: configService.get<string>(VAULT_CA)
-        }) as AuthClientOptions,
+          vaultCA: configService.get<string>(VAULT_CA),
+        }) as AuthClientModuleOptions,
     }),
+  ],
+  controllers: [AppController],
+  providers: [AppService],
+})
+export class AppModule {}
 ```
 
 When using the ConfigService, make sure that the variables are loaded before accessing them.
 This usually works as follows:
-```
+```ts
 export class MyModule implements OnModuleInit {
   
   
@@ -60,6 +65,12 @@ export class MyModule implements OnModuleInit {
     await ConfigModule.envVariablesLoaded;
   }
 }
+```
+
+## Build & Package
+```bash
+# Nest Build
+$ nest build
 ```
 
 ## Support
