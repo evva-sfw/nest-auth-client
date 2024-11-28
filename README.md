@@ -11,6 +11,7 @@ Client implementation for the EVVA Auth Service.
 
 ## Install
 
+`npm i @evva/nest-auth-client`
 
 ## Usage
 
