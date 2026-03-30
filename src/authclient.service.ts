@@ -2,7 +2,7 @@ import { Inject, Injectable, Logger } from '@nestjs/common';
 import { DateTime } from 'luxon';
 import * as crypto from 'node:crypto';
 
-import nodeVault from 'node-vault';
+import * as NodeVault from 'node-vault';
 import { MODULE_OPTIONS_TOKEN } from './authclient.module-definition';
 import { AuthClientModuleOptions } from './authclient.module-options';
 
@@ -14,7 +14,7 @@ const AUTH_TOKEN_SEPARATOR = '-';
 export class AuthClientService {
   private readonly logger = new Logger('AuthClientService');
   private authToken: string;
-  private vault: nodeVault.client;
+  private vault: NodeVault.client;
   constructor(@Inject(MODULE_OPTIONS_TOKEN) private authClientModuleOptions: AuthClientModuleOptions) {
   }
 
@@ -22,7 +22,7 @@ export class AuthClientService {
    * Fetch the vault token.
    */
   async getVaultToken() {
-    this.logger.log('getVaultToken');
+    this.logger.debug('getVaultToken');
     if (!this.authToken) {
       this.logger.error('Proceeed to Authentication first.');
     }
@@ -36,10 +36,10 @@ export class AuthClientService {
       requestOptions: {
         ca: vaultCA,
       },
-    };
-    const vault = nodeVault(options);
+    } as NodeVault.VaultOptions;
+    const vault = NodeVault.default(options);
     try {
-      vault.jwtLogin({
+      await vault.jwtLogin({
         role: vaultRoleId,
         jwt: this.authToken,
       });
@@ -88,17 +88,15 @@ export class AuthClientService {
    * @param {String} path Vault path to secret. For example: secret/infrastructure/services/internal/bamboo/approles/approle-test
    * @async
    */
-  async getSecret(path) : Promise<string>{
-    return new Promise(function (resolve, reject) {
-      this.vault.read(path)
-        .then((value) => {
-          resolve(value.data);
-        })
-        .catch(function (err) {
-          this.logger.error(JSON.stringify(err));
-          reject();
-        });
-    }.bind(this));
+  async getSecret(path) : Promise<any>{
+    try {
+      this.logger.debug(`getSecret: ${path}`);
+      const value = await this.vault.read(path);
+      return value.data;
+    } catch (err) {
+      this.logger.error(JSON.stringify(err));
+      return {};
+    }
   }
 
   _keyDerive(key: Buffer, salt: Buffer, info: Buffer, length = HKDF_DERIVED_KEY_BYTELENGTH): Buffer {
