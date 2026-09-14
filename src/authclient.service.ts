@@ -13,8 +13,8 @@ const AUTH_TOKEN_SEPARATOR = '-';
 @Injectable()
 export class AuthClientService {
   private readonly logger = new Logger('AuthClientService');
-  private authToken: string;
-  private vault: NodeVault.client;
+  private authToken?: string;
+  private vault?: NodeVault.client;
   constructor(@Inject(MODULE_OPTIONS_TOKEN) private authClientModuleOptions: AuthClientModuleOptions) {
   }
 
@@ -88,10 +88,10 @@ export class AuthClientService {
    * @param {String} path Vault path to secret. For example: secret/infrastructure/services/internal/bamboo/approles/approle-test
    * @async
    */
-  async getSecret(path) : Promise<any>{
+  async getSecret(path: string) : Promise<any>{
     try {
       this.logger.debug(`getSecret: ${path}`);
-      const value = await this.vault.read(path);
+      const value = await this.vault?.read(path);
       return value.data;
     } catch (err) {
       this.logger.error(JSON.stringify(err));
