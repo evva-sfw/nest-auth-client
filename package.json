@@ -4,6 +4,7 @@
   "description": "An Auth Service Client for Nest.js",
   "main": "dist/index.js",
   "types": "dist/types/index.d.ts",
+  "type": "module",
   "files": [
     "dist",
     "package.json",
@@ -25,47 +26,51 @@
     "client"
   ],
   "scripts": {
-    "build": "rimraf dist && tsc -p tsconfig.build.json",
+    "build": "rimraf dist && npx nest build",
     "format": "npx prettier --write \"src/**/*.ts\"",
-    "lint": "tslint -p tsconfig.json -c tslint.json",
-    "fmt": "npx tslint -p tsconfig.json -c tslint.json --fix && npx prettier -- --write",
-    "test": "jest",
-    "test:watch": "jest --watch",
-    "test:cov": "jest --coverage",
+    "lint": "npx eslint -c eslint.config.ts",
+    "lint:fix": "npm run lint -- --fix ",
+    "fmt": "npx prettier -- --write",
+    "test": "vitest run",
+    "test:watch": "vitest --watch",
+    "test:cov": "vitest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "test:e2e": "jest --config ./test/jest-e2e.json",
     "prepack": "npx nest build"
   },
   "peerDependencies": {
-    "@nestjs/common": "^10.0.0||^11.0.0",
-    "@nestjs/core": "^10.0.0||^11.0.0",
+    "@nestjs/common": "^12.0.2",
+    "@nestjs/core": "^12.0.2",
     "luxon": "^3.5.0",
     "node-vault": "^0.12.0"
   },
   "devDependencies": {
     "@nestjs/cli": "^11.0.16",
-    "@nestjs/common": "^11.1.17",
-    "@nestjs/config": "^4.0.3",
-    "@nestjs/core": "^11.1.17",
-    "@nestjs/testing": "^11.1.17",
-    "@release-it/conventional-changelog": "^11.0.0",
+    "@nestjs/common": "^12.0.2",
+    "@nestjs/config": "^12.0.0",
+    "@nestjs/core": "^12.0.2",
+    "@nestjs/testing": "^12.0.2",
     "@types/express": "^5.0.6",
     "@types/jest": "30.0.0",
+    "@types/luxon": "^3.7.5",
     "@types/node": "^25.5.0",
     "auto-changelog": "^2.5.0",
+    "eslint": "^10.10.0",
+    "eslint-config-prettier": "^10.1.8",
+    "jiti": "^2.7.0",
     "prettier": "3.8.1",
+    "prettier-eslint": "^17.1.2",
     "reflect-metadata": "^0.2.2",
-    "release-it": "^20.0.0",
+    "@eslint/js": "^10.0.1",
     "rimraf": "^6.1.3",
     "rxjs": "^7.8.2",
     "supertest": "^7.2.2",
-    "ts-jest": "29.4.6",
     "ts-loader": "^9.5.4",
     "ts-node": "^10.9.2",
     "tsc-watch": "7.2.0",
     "tsconfig-paths": "4.2.0",
-    "tslint": "6.1.3",
-    "typescript": "^5.9.3"
+    "typescript": "^6.0.3",
+    "typescript-eslint": "^8.71.1",
+    "vitest": "^5.0.0"
   },
   "jest": {
     "moduleFileExtensions": [
@@ -80,5 +85,6 @@
     },
     "coverageDirectory": "../coverage",
     "testEnvironment": "node"
-  }
+  },
+  "dependencies": {}
 }
