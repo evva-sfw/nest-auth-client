@@ -6,7 +6,7 @@ on:
         type: choice
         description: What type of release?
         options:
-          - ""
+          - infer
           - patch
           - minor
           - major
@@ -14,7 +14,7 @@ on:
 concurrency: ${{ github.workflow }}-${{ github.ref }}
 permissions: {}
 env:
-  GIT_CLIFF_VERSION: "2.13.1"
+  GIT_CLIFF_VERSION: ${{ vars.GLOBAL_GIT_CLIFF_VERSION }}
 
 jobs:
   bump-version:
@@ -91,7 +91,27 @@ jobs:
           VERSION_TYPE: ${{ github.event.inputs.input_version }}
         run: |
             set -e
-            git-cliff --bump $VERSION_TYPE --bumped-version > version
+            bump() {
+              local old=$1 type=$2 major minor patch new
+              IFS=. read -r major minor patch <<< "${old%%[-+]*}"
+              case $type in
+                major) new="$((major+1)).0.0" ;;
+                minor) new="$major.$((minor+1)).0" ;;
+                patch) new="$major.$minor.$((patch+1))" ;;
+                *) echo "usage: bump VERSION major|minor|patch" >&2; return 1 ;;
+              esac
+              dpkg --compare-versions "$new" gt "$old" || { echo "not an increase?!" >&2; return 1; }
+              echo "${new}"
+            }
+            git fetch --tags
+            LATEST_TAG=$(git describe --tags --abbrev=0)
+            LATEST_TAG=${LATEST_TAG#v}
+            echo "Latest tag fetched is ${LATEST_TAG}"
+            if [[ "$VERSION_TYPE" == 'infer' ]]; then
+              git-cliff --bump --bumped-version > version
+            else
+              bump "$LATEST_TAG" "$VERSION_TYPE" > version
+            fi
             echo "New version will be $(cat version)"
             NEW_TAG=$(cat version)
             echo "new-tag=$NEW_TAG" >> "$GITHUB_OUTPUT"
@@ -99,25 +119,38 @@ jobs:
 
     # Apply latest tag info update the package.json file so it is built with new version
       - name: Update version info in package files
+        id: update-version
         env:
           NEW_TAG: ${{ steps.version.outputs.new-tag }}
         run: |
             set -e
             echo '::group:: Preparing files with updated versions'
             echo "New version will be $NEW_TAG"
-            jq --arg version "$NEW_TAG" '.version = $version' ${{ github.workspace }}/package.json > temp.json && mv temp.json ${{ github.workspace }}/package.json
-            jq --arg version "$NEW_TAG" '.version = $version' ${{ github.workspace }}/package-lock.json > temp.json && mv temp.json ${{ github.workspace }}/package-lock.json
-            jq --arg version "$NEW_TAG" '.packages[""].version = $version' ${{ github.workspace }}/package-lock.json > temp.json && mv temp.json ${{ github.workspace }}/package-lock.json
+            current_tag=$(jq -r .version package.json)
+
+            # check if version changed, and only run version command then
+            # output to signal version changed and changes should be commited
+            #
+            if [[ "$current_tag" == "${NEW_TAG#v}" ]]; then
+              echo "Version already bumped, skipping this step"
+              echo "should-commit=false" >> "$GITHUB_OUTPUT"
+            else
+              npm version "$NEW_TAG" --no-git-tag-version
+              echo "should-commit=true" >> "$GITHUB_OUTPUT"
+            fi
             echo '::endgroup::'
             echo '::group:: Reading package.json'
             cat ${{ github.workspace }}/package.json
             echo '::endgroup::'
             echo '::group:: Reading package-lock.json'
-            cat ${{ github.workspace }}/package-lock.json
+            head ${{ github.workspace }}/package-lock.json
             echo '::endgroup::'
 
+
         # Update the version in the repo package files and commit
+        # checking if anything changed in the previous step to know if we should commit anything
       - name: Commit & Push changes
+        if: ${{ steps.update-version.outputs.should-commit == 'true' }}
         uses: iarekylew00t/verified-bot-commit@5b4e8852dc472093935b8debcb81459bb79f7986 # v2.3.2
         with:
           ref: main
@@ -217,7 +250,17 @@ jobs:
         run: |
           set -e
           gh release create "$TAG_NAME" --target $(git rev-parse HEAD) --notes "Generating..." --title "$TAG_NAME"
-          git fetch --tags
+          for i in {1..5}; do
+            set +e
+            git fetch --tags origin "$TAG_NAME" && break
+            set -e
+            echo "Tag not fetchable yet, retrying..."
+            sleep 0.5
+            if [[ "$i" == 5 ]]; then
+              echo "Tag $TAG_NAME still not fetchable after 5 attempts"
+              exit i
+            fi
+          done
 
       # Use git cliff to generate release notes
       - name: Generate release notes and update release
