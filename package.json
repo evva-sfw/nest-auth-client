@@ -85,6 +85,7 @@
   "dependencies": {
     "@eslint/js": "^10.0.1",
     "basic-ftp": "^6.2.2",
+    "jiti": "^2.7.0",
     "prettier-eslint": "^17.1.2",
     "typescript-eslint": "^8.70.0"
   }
